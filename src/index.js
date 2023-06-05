@@ -10,42 +10,78 @@ if (document.readyState !== "loading") {
   });
 }
 
-const getData = async () => {
-  const url = "https://dog.ceo/api/breeds/image/random";
-  fetch(url).then((response) =>
-    response
-      .json()
-      .then((data) => ({
-        data: data,
-        status: response.status,
-      }))
-      .then((res) => {
-        const imgdata = res.data.message;
-        return imgdata;
-      })
-  );
+const getData = async (breedname) => {
+  const url = `https://dog.ceo/api/breed/${breedname}/images/random`;
+  const response = await fetch(url);
+const json = await response.json();
+console.log(json.message);
+
+return json.message;
 };
 
-function test() {
-  let div = document.createElement("div");
-  let p = document.createElement("p");
-  div.append("Some text", p);
+const getWiki = async (breedname) => {
+const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${breedname}?redirect=true"`;
+const response = await fetch(url);
+const json = await response.json();
+console.log(json.extract);
+return json.extract
 
-  console.log(div.childNodes);
 }
 
-function createContent() {
+
+
+const createWikiItem = (picture, breed, info) => {
+  const wikiItem = document.createElement("div");
+
+  wikiItem.className = "wiki-item";
+  const wikiHeader = document.createElement("h1");
+  wikiHeader.className = "wiki-header";
+  wikiHeader.textContent =breed;
+  wikiItem.appendChild(wikiHeader);
+
+  const wikiContent = document.createElement("div");
+  wikiContent.className = "wiki-content";
+
+  const wikiText = document.createElement("p");
+  wikiText.className = "wiki-text";
+  wikiText.textContent = info;
+
+  wikiContent.appendChild(wikiText);
+
+  const imgContainer = document.createElement("div");
+  imgContainer.className = "img-container";
+
+  const wikiImg= document.createElement("img");
+  wikiImg.className = "wiki-img";
+  wikiImg.src = picture;
+  
+  imgContainer.appendChild(wikiImg);
+
+  wikiContent.appendChild(imgContainer);
+  wikiItem.appendChild(wikiContent);
+
+
+
+
+  return wikiItem;
+}
+
+const createContent = async () =>  {
+  const breeds = ["Husky", "Kelpie", "Beagle", "Borzoi", "Malamute"]
   const container = document.createElement("div");
   container.className = "container";
-  const currentDiv = document.getElementsByClassName("wiki-item");
-  container.appendChild(currentDiv);
-  container.appendChild(currentDiv);
+  document.body.appendChild(container);
 
-  container.appendChild(currentDiv);
+  for (let index = 0; index < 5; index++) {
+    
+    const breed = breeds[index];
+    const info = await getWiki(breed)
+    const picture = await getData(breed.toLowerCase());
+    
+    console.log("TESTI", breed, picture)
+    container.appendChild(createWikiItem(picture, breed, info));
+  }
 
-  container.appendChild(currentDiv);
-
-  container.appendChild(currentDiv);
 }
 const initializeCode = async () => {
   createContent();
