@@ -10,57 +10,44 @@ if (document.readyState !== "loading") {
   });
 }
 
-const getData = async (breedname) => {
-  const url = `https://dog.ceo/api/breed/${breedname}/images/random`;
-  const response = await fetch(url);
-const json = await response.json();
-console.log(json.message);
 
-return json.message;
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  const json = await response.json();
+
+  return json;
 };
 
-const getWiki = async (breedname) => {
-const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${breedname}?redirect=true"`;
-const response = await fetch(url);
-const json = await response.json();
-console.log(json.extract);
-return json.extract
+const makeElement = (element, className, content) => {
+  const webElement = document.createElement(element);
+  webElement.className = className;
+  if(element === "img"){
+    webElement.src = content;
+  }
+  if(element === "p" || element === "h1"){
+    webElement.textContent = content
+  }
 
+  return webElement;
 }
 
-
-
 const createWikiItem = (picture, breed, info) => {
-  const wikiItem = document.createElement("div");
-
-  wikiItem.className = "wiki-item";
-  const wikiHeader = document.createElement("h1");
-  wikiHeader.className = "wiki-header";
-  wikiHeader.textContent =breed;
+  const wikiItem = makeElement("div", "wiki-item");
+  const wikiHeader = makeElement("h1", "wiki-header", breed);
   wikiItem.appendChild(wikiHeader);
 
-  const wikiContent = document.createElement("div");
-  wikiContent.className = "wiki-content";
-
-  const wikiText = document.createElement("p");
-  wikiText.className = "wiki-text";
-  wikiText.textContent = info;
+  const wikiContent = makeElement("div", "wiki-content");
+  const wikiText = makeElement("p", "wiki-text", info);
 
   wikiContent.appendChild(wikiText);
 
-  const imgContainer = document.createElement("div");
-  imgContainer.className = "img-container";
+  const imgContainer = makeElement("div", "img-container");
 
-  const wikiImg= document.createElement("img");
-  wikiImg.className = "wiki-img";
-  wikiImg.src = picture;
+  const wikiImg= makeElement("img", "wiki-img", picture);
   
   imgContainer.appendChild(wikiImg);
-
   wikiContent.appendChild(imgContainer);
   wikiItem.appendChild(wikiContent);
-
-
 
 
   return wikiItem;
@@ -68,18 +55,20 @@ const createWikiItem = (picture, breed, info) => {
 
 const createContent = async () =>  {
   const breeds = ["Husky", "Kelpie", "Beagle", "Borzoi", "Malamute"]
-  const container = document.createElement("div");
-  container.className = "container";
+  const container = makeElement("div", "container");
   document.body.appendChild(container);
 
   for (let index = 0; index < 5; index++) {
     
     const breed = breeds[index];
-    const info = await getWiki(breed)
-    const picture = await getData(breed.toLowerCase());
+
+    const wikiURL = `https://en.wikipedia.org/api/rest_v1/page/summary/${breed}?redirect=true"`;
+    const picURL = `https://dog.ceo/api/breed/${breed.toLowerCase()}/images/random`;
+
+    const info = await fetchData(wikiURL);
+    const picture = await fetchData(picURL);
     
-    console.log("TESTI", breed, picture)
-    container.appendChild(createWikiItem(picture, breed, info));
+    container.appendChild(createWikiItem(picture.message, breed, info.extract));
   }
 
 }
